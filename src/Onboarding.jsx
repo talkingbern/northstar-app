@@ -11,19 +11,20 @@ const AREAS = [
 ];
 
 const HABIT_SUGGESTIONS = [
-  { name:"Wake up by 8:00 am",        area:"health" },
-  { name:"Read for 30 mins",           area:"hobbies" },
-  { name:"Exercise",                   area:"health" },
-  { name:"Journal",                    area:"hobbies" },
-  { name:"Limit screen time to 1 hr",  area:"lifestyle" },
-  { name:"Eat well",                   area:"health" },
-  { name:"Meditate",                   area:"health" },
-  { name:"Cold shower",                area:"health" },
-  { name:"Study / learn something new",area:"hobbies" },
-  { name:"Connect with a friend",      area:"family" },
+  { name:"Wake up by 8:00 am",         area:"health" },
+  { name:"Read for 30 mins",            area:"hobbies" },
+  { name:"Exercise",                    area:"health" },
+  { name:"Journal",                     area:"hobbies" },
+  { name:"Limit screen time to 1 hr",   area:"lifestyle" },
+  { name:"Eat well",                    area:"health" },
+  { name:"Meditate",                    area:"health" },
+  { name:"Cold shower",                 area:"health" },
+  { name:"Study / learn something new", area:"hobbies" },
+  { name:"Connect with a friend",       area:"family" },
 ];
 
 const TOTAL_STEPS = 6;
+const PETERSON_VIDEO = "https://www.youtube.com/watch?v=NX2ep5fCJZ0";
 
 function ProgressDots({ step, total, accent }) {
   return (
@@ -36,20 +37,19 @@ function ProgressDots({ step, total, accent }) {
 }
 
 export default function Onboarding({ theme, onComplete }) {
-  const [step, setStep] = useState(0);
-  const [username, setUsername] = useState("");
-  const [visions, setVisions] = useState({});
-  const [currentArea, setCurrentArea] = useState(0);
-  const [goalInputs, setGoalInputs] = useState({});
-  // Habits: track selected suggestions + custom additions (stored locally, not yet in store)
+  const [step, setStep]                   = useState(0);
+  const [username, setUsername]           = useState("");
+  const [visions, setVisions]             = useState({});
+  const [currentArea, setCurrentArea]     = useState(0);
+  const [goalInputs, setGoalInputs]       = useState({});
   const [selectedHabits, setSelectedHabits] = useState(new Set());
-  const [customHabits, setCustomHabits] = useState([]); // [{name, area}]
+  const [customHabits, setCustomHabits]   = useState([]);
   const [customHabitName, setCustomHabitName] = useState("");
   const [customHabitArea, setCustomHabitArea] = useState("health");
-  const [tasks, setTasks] = useState([]);
-  const [taskName, setTaskName] = useState("");
-  const [taskArea, setTaskArea] = useState("health");
-  const [taskDue, setTaskDue] = useState("today");
+  const [tasks, setTasks]                 = useState([]);
+  const [taskName, setTaskName]           = useState("");
+  const [taskArea, setTaskArea]           = useState("health");
+  const [taskDue, setTaskDue]             = useState("today");
 
   const T = theme;
   const areaLabels = { health:"Health & Fitness", career:"Career & Finance", hobbies:"Hobbies & Growth", relationships:"Relationships", family:"Family & Friends", lifestyle:"Lifestyle" };
@@ -58,38 +58,25 @@ export default function Onboarding({ theme, onComplete }) {
   function back() { setStep(s=>s-1); }
 
   function finish() {
-    setUser({ name: username.trim() || "Friend" });
-    // Save vision
-    Object.entries(visions).forEach(([aId, text]) => { if (text?.trim()) saveVision(aId, text.trim()); });
-    // Save goals
-    const goalsObj = {};
-    AREAS.forEach(area => {
-      const key = area.id + "_1yr";
-      const text = goalInputs[key]?.trim();
-      if (text) goalsObj[area.id] = { "1yr": [{ text, label:"1 year" }] };
-    });
+    setUser({ name:username.trim()||"Friend" });
+    Object.entries(visions).forEach(([aId,text])=>{ if(text?.trim()) saveVision(aId,text.trim()); });
+    const goalsObj={};
+    AREAS.forEach(area=>{ const text=goalInputs[area.id+"_1yr"]?.trim(); if(text) goalsObj[area.id]={"1yr":[{text,label:"1 year"}]}; });
     saveGoals(goalsObj);
-    // Save habits — selected suggestions + custom ones
-    HABIT_SUGGESTIONS.filter(h => selectedHabits.has(h.name)).forEach(h => addHabit(h));
-    customHabits.forEach(h => addHabit(h));
-    // Save tasks
-    tasks.forEach(t => addTask(t));
+    HABIT_SUGGESTIONS.filter(h=>selectedHabits.has(h.name)).forEach(h=>addHabit(h));
+    customHabits.forEach(h=>addHabit(h));
+    tasks.forEach(t=>addTask(t));
     setOnboarded(true);
     onComplete();
   }
 
   function addCustomHabit() {
     if (!customHabitName.trim()) return;
-    const h = { name: customHabitName.trim(), area: customHabitArea };
-    setCustomHabits(prev => [...prev, h]);
+    setCustomHabits(prev=>[...prev,{name:customHabitName.trim(),area:customHabitArea}]);
     setCustomHabitName("");
   }
 
-  function removeCustomHabit(idx) {
-    setCustomHabits(prev => prev.filter((_,i)=>i!==idx));
-  }
-
-  const wrap = (children) => (
+  const wrap = children => (
     <div style={{ minHeight:"100vh", background:T.bg, display:"flex", flexDirection:"column", alignItems:"center", justifyContent:"center", padding:"24px 20px", transition:"background 0.2s" }}>
       <div style={{ width:"100%", maxWidth:480 }}>{children}</div>
     </div>
@@ -97,13 +84,41 @@ export default function Onboarding({ theme, onComplete }) {
 
   // ── Step 0: Welcome ──────────────────────────────────────────────────────────
   if (step===0) return wrap(<>
-    <div style={{ textAlign:"center", marginBottom:32 }}>
+    <div style={{ textAlign:"center", marginBottom:28 }}>
       <div style={{ fontSize:52, marginBottom:16 }}>🌟</div>
-      <h1 style={{ fontSize:28, fontWeight:600, color:T.textPrimary, marginBottom:10, fontFamily:"'DM Serif Display',serif" }}>Welcome to Northstar</h1>
-      <p style={{ fontSize:15, color:T.textSecondary, lineHeight:1.65 }}>Your personal guide for turning vision into daily action. Let's take 3 minutes to set you up.</p>
+      <h1 style={{ fontSize:28, fontWeight:600, color:T.textPrimary, marginBottom:12, fontFamily:"'DM Serif Display',serif" }}>Welcome to Northstar</h1>
+      <p style={{ fontSize:15, color:T.textSecondary, lineHeight:1.65 }}>Your personal guide for turning vision into daily action.</p>
     </div>
+
+    {/* Peterson quote */}
+    <div style={{ background:T.card, border:`0.5px solid ${T.border}`, borderRadius:14, padding:"18px 20px", marginBottom:16, borderLeft:`3px solid ${T.accent}`, borderRadius:"0 14px 14px 0" }}>
+      <p style={{ fontSize:14, color:T.textPrimary, lineHeight:1.7, fontStyle:"italic", marginBottom:10 }}>
+        "What sort of life would you have to have to bear your suffering nobly... If you could have what you wanted and needed, what might that look like?"
+      </p>
+      <span style={{ fontSize:12, fontWeight:500, color:T.accent }}>— Jordan Peterson</span>
+    </div>
+
+    {/* Video link */}
+    <a href={PETERSON_VIDEO} target="_blank" rel="noreferrer" style={{ display:"flex", alignItems:"center", gap:12, background:T.card, border:`0.5px solid ${T.border}`, borderRadius:12, padding:"12px 14px", marginBottom:20, textDecoration:"none" }}>
+      {/* YouTube thumbnail */}
+      <div style={{ width:72, height:48, borderRadius:8, overflow:"hidden", flexShrink:0, background:"#000", position:"relative" }}>
+        <img src="https://img.youtube.com/vi/NX2ep5fCJZ0/mqdefault.jpg" alt="13 Minutes To Change Your Life" style={{ width:"100%", height:"100%", objectFit:"cover" }} />
+        <div style={{ position:"absolute", inset:0, display:"flex", alignItems:"center", justifyContent:"center" }}>
+          <div style={{ width:22, height:22, borderRadius:"50%", background:"rgba(255,0,0,0.85)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+            <span style={{ color:"white", fontSize:10, marginLeft:2 }}>▶</span>
+          </div>
+        </div>
+      </div>
+      <div style={{ flex:1, minWidth:0 }}>
+        <div style={{ fontSize:12, color:T.textHint, marginBottom:2 }}>For further inspiration</div>
+        <div style={{ fontSize:13, fontWeight:500, color:T.textPrimary, lineHeight:1.3 }}>13 Minutes To Change Your Life</div>
+        <div style={{ fontSize:11, color:T.textHint, marginTop:1 }}>Dr Jordan Peterson Clips</div>
+      </div>
+      <span style={{ fontSize:14, color:T.textHint, flexShrink:0 }}>↗</span>
+    </a>
+
     <ProgressDots step={0} total={TOTAL_STEPS} accent={T.accent} />
-    <div style={{ marginBottom:16 }}>
+    <div style={{ marginBottom:14 }}>
       <div style={{ fontSize:13, fontWeight:500, color:T.textSecondary, marginBottom:6 }}>What should we call you?</div>
       <input value={username} onChange={e=>setUsername(e.target.value)} placeholder="Your first name" autoFocus onKeyDown={e=>e.key==="Enter"&&username.trim()&&next()} style={{ width:"100%", background:T.card, border:`1px solid ${T.borderMed}`, borderRadius:10, padding:"12px 14px", fontSize:16, color:T.textPrimary, fontFamily:"inherit" }} />
     </div>
@@ -122,9 +137,8 @@ export default function Onboarding({ theme, onComplete }) {
         <div style={{ fontSize:11, fontWeight:500, letterSpacing:"0.1em", color:T.textHint, textTransform:"uppercase" }}>Step 1 of 4 — Your Vision</div>
       </div>
       <ProgressDots step={1} total={TOTAL_STEPS} accent={T.accent} />
-      {/* area progress */}
       <div style={{ display:"flex", gap:4, marginBottom:20 }}>
-        {AREAS.map((_,i)=><div key={i} style={{ flex:1, height:3, borderRadius:2, background:i<currentArea?T.accent:i===currentArea?T.accent:T.surface, opacity:i<currentArea?0.5:1 }} />)}
+        {AREAS.map((_,i)=><div key={i} style={{ flex:1, height:3, borderRadius:2, background:i<=currentArea?T.accent:T.surface, opacity:i<currentArea?0.5:1 }} />)}
       </div>
       <div style={{ display:"flex", alignItems:"center", gap:12, marginBottom:14 }}>
         <div style={{ width:40, height:40, borderRadius:10, background:area.bg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:20 }}>{area.icon}</div>
@@ -136,12 +150,7 @@ export default function Onboarding({ theme, onComplete }) {
       <div style={{ background:T.surface, borderRadius:10, padding:"10px 12px", marginBottom:14, borderLeft:`3px solid ${T.accent}` }}>
         <p style={{ fontSize:13, color:T.textSecondary, lineHeight:1.5 }}>{area.prompt}</p>
       </div>
-      <textarea
-        value={visions[area.id]||""}
-        onChange={e=>setVisions(v=>({...v,[area.id]:e.target.value}))}
-        placeholder={area.placeholder}
-        style={{ width:"100%", minHeight:100, background:T.card, border:`1px solid ${T.borderMed}`, borderRadius:10, padding:"12px 14px", fontSize:14, fontFamily:"inherit", color:T.textPrimary, lineHeight:1.6, resize:"vertical", marginBottom:12 }}
-      />
+      <textarea value={visions[area.id]||""} onChange={e=>setVisions(v=>({...v,[area.id]:e.target.value}))} placeholder={area.placeholder} style={{ width:"100%", minHeight:100, background:T.card, border:`1px solid ${T.borderMed}`, borderRadius:10, padding:"12px 14px", fontSize:14, fontFamily:"inherit", color:T.textPrimary, lineHeight:1.6, resize:"vertical", marginBottom:12 }} />
       <div style={{ display:"flex", gap:8 }}>
         <button onClick={()=>{ if(!isLast) setCurrentArea(a=>a+1); else next(); }} style={{ flex:1, padding:12, background:"none", border:`1px solid ${T.borderMed}`, borderRadius:10, fontSize:14, color:T.textSecondary, cursor:"pointer", fontFamily:"inherit" }}>Skip</button>
         <button onClick={()=>{ if(isLast) next(); else setCurrentArea(a=>a+1); }} style={{ flex:2, padding:12, background:T.accent, color:T.accentBg, border:"none", borderRadius:10, fontSize:14, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>
@@ -159,25 +168,20 @@ export default function Onboarding({ theme, onComplete }) {
     </div>
     <ProgressDots step={2} total={TOTAL_STEPS} accent={T.accent} />
     <h2 style={{ fontSize:20, fontWeight:600, color:T.textPrimary, marginBottom:6 }}>Set your 1-year goals</h2>
-    <p style={{ fontSize:13, color:T.textSecondary, marginBottom:18, lineHeight:1.5 }}>For each life area, set one concrete target for this year. You can add more detail later.</p>
+    <p style={{ fontSize:13, color:T.textSecondary, marginBottom:18, lineHeight:1.5 }}>For each life area, set one concrete target for this year. You can add 6-month and custom goals later.</p>
     {AREAS.map(area=>{
-      const key = area.id+"_1yr";
+      const key=area.id+"_1yr";
       return (
         <div key={area.id} style={{ background:T.card, border:`0.5px solid ${T.border}`, borderRadius:10, marginBottom:10, overflow:"hidden" }}>
           <div style={{ display:"flex", alignItems:"center", gap:10, padding:"11px 14px", borderBottom:`0.5px solid ${T.border}` }}>
             <div style={{ width:28, height:28, borderRadius:6, background:area.bg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:15 }}>{area.icon}</div>
             <div style={{ flex:1, minWidth:0 }}>
               <div style={{ fontSize:13, fontWeight:500, color:T.textPrimary }}>{area.title}</div>
-              {visions[area.id] && <div style={{ fontSize:11, color:T.textHint, marginTop:1, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{visions[area.id].slice(0,50)}…</div>}
+              {visions[area.id]&&<div style={{ fontSize:11, color:T.textHint, marginTop:1, overflow:"hidden", textOverflow:"ellipsis", whiteSpace:"nowrap" }}>{visions[area.id].slice(0,50)}…</div>}
             </div>
           </div>
           <div style={{ padding:"10px 14px" }}>
-            <input
-              value={goalInputs[key]||""}
-              onChange={e=>setGoalInputs(g=>({...g,[key]:e.target.value}))}
-              placeholder={`1-year goal for ${area.title.split(" & ")[0]}...`}
-              style={{ width:"100%", background:T.surface, border:`0.5px solid ${T.borderMed}`, borderRadius:8, padding:"9px 11px", fontSize:13, color:T.textPrimary, fontFamily:"inherit" }}
-            />
+            <input value={goalInputs[key]||""} onChange={e=>setGoalInputs(g=>({...g,[key]:e.target.value}))} placeholder={`1-year goal for ${area.title.split(" & ")[0]}...`} style={{ width:"100%", background:T.surface, border:`0.5px solid ${T.borderMed}`, borderRadius:8, padding:"9px 11px", fontSize:13, color:T.textPrimary, fontFamily:"inherit" }} />
           </div>
         </div>
       );
@@ -188,10 +192,7 @@ export default function Onboarding({ theme, onComplete }) {
 
   // ── Step 3: Habits ────────────────────────────────────────────────────────────
   if (step===3) {
-    const allHabits = [
-      ...HABIT_SUGGESTIONS.map(h=>({...h, isCustom:false})),
-      ...customHabits.map(h=>({...h, isCustom:true})),
-    ];
+    const allHabits=[...HABIT_SUGGESTIONS.map(h=>({...h,isCustom:false})),...customHabits.map(h=>({...h,isCustom:true}))];
     return wrap(<>
       <div style={{ display:"flex", alignItems:"center", gap:10, marginBottom:20 }}>
         <button onClick={back} style={{ background:"none", border:"none", fontSize:22, cursor:"pointer", color:T.textSecondary, padding:0 }}>←</button>
@@ -199,31 +200,23 @@ export default function Onboarding({ theme, onComplete }) {
       </div>
       <ProgressDots step={3} total={TOTAL_STEPS} accent={T.accent} />
       <h2 style={{ fontSize:20, fontWeight:600, color:T.textPrimary, marginBottom:6 }}>Choose your daily habits</h2>
-      <p style={{ fontSize:13, color:T.textSecondary, marginBottom:4, lineHeight:1.5 }}>These show up every single day. Choose carefully — quality over quantity.</p>
-      <p style={{ fontSize:12, color:T.accent, marginBottom:18, fontWeight:500 }}>{selectedHabits.size + customHabits.length} selected</p>
-
+      <p style={{ fontSize:13, color:T.textSecondary, marginBottom:4, lineHeight:1.5 }}>These show up every single day. Choose carefully.</p>
+      <p style={{ fontSize:12, color:T.accent, marginBottom:16, fontWeight:500 }}>{selectedHabits.size+customHabits.length} selected</p>
       {allHabits.map((h,i)=>{
-        const isSelected = h.isCustom ? true : selectedHabits.has(h.name);
+        const isSelected=h.isCustom?true:selectedHabits.has(h.name);
         return (
-          <div key={h.name+i} onClick={()=>{
-            if(h.isCustom) return; // custom habits always included, remove via X
-            setSelectedHabits(s=>{ const n=new Set(s); isSelected?n.delete(h.name):n.add(h.name); return n; });
-          }} style={{ display:"flex", alignItems:"center", gap:12, background:T.card, border:`1px solid ${isSelected?T.accent:T.border}`, borderRadius:10, padding:"12px 14px", marginBottom:8, cursor:"pointer", transition:"border-color 0.15s", userSelect:"none" }}>
+          <div key={h.name+i} onClick={()=>{ if(h.isCustom) return; setSelectedHabits(s=>{const n=new Set(s);isSelected?n.delete(h.name):n.add(h.name);return n;}); }} style={{ display:"flex", alignItems:"center", gap:12, background:T.card, border:`1px solid ${isSelected?T.accent:T.border}`, borderRadius:10, padding:"12px 14px", marginBottom:8, cursor:"pointer", transition:"border-color 0.15s", userSelect:"none" }}>
             <div style={{ width:22, height:22, borderRadius:"50%", border:`2px solid ${isSelected?T.accent:T.borderMed}`, background:isSelected?T.accent:"transparent", display:"flex", alignItems:"center", justifyContent:"center", flexShrink:0, transition:"all 0.15s" }}>
-              {isSelected && <span style={{ color:T.accentBg, fontSize:12 }}>✓</span>}
+              {isSelected&&<span style={{ color:T.accentBg, fontSize:12 }}>✓</span>}
             </div>
             <div style={{ flex:1 }}>
               <div style={{ fontSize:14, fontWeight:500, color:T.textPrimary }}>{h.name}</div>
               <div style={{ fontSize:11, color:T.textHint, marginTop:1 }}>{areaLabels[h.area]||h.area}</div>
             </div>
-            {h.isCustom && (
-              <button onClick={e=>{e.stopPropagation();removeCustomHabit(i-HABIT_SUGGESTIONS.length);}} style={{ background:"none", border:"none", cursor:"pointer", color:T.textHint, fontSize:14 }}>✕</button>
-            )}
+            {h.isCustom&&<button onClick={e=>{e.stopPropagation();setCustomHabits(prev=>prev.filter((_,j)=>j!==i-HABIT_SUGGESTIONS.length));}} style={{ background:"none", border:"none", cursor:"pointer", color:T.textHint, fontSize:14 }}>✕</button>}
           </div>
         );
       })}
-
-      {/* Add custom */}
       <div style={{ background:T.card, border:`0.5px solid ${T.border}`, borderRadius:10, padding:"12px 14px", marginBottom:16 }}>
         <div style={{ fontSize:12, color:T.textSecondary, marginBottom:8 }}>Add a custom habit</div>
         <div style={{ display:"flex", gap:8, marginBottom:8 }}>
@@ -234,7 +227,6 @@ export default function Onboarding({ theme, onComplete }) {
           {Object.entries(areaLabels).map(([id,lbl])=><option key={id} value={id}>{lbl}</option>)}
         </select>
       </div>
-
       <button onClick={next} style={{ width:"100%", padding:14, background:T.accent, color:T.accentBg, border:"none", borderRadius:10, fontSize:15, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>Next: Tasks →</button>
     </>);
   }
@@ -247,8 +239,7 @@ export default function Onboarding({ theme, onComplete }) {
     </div>
     <ProgressDots step={4} total={TOTAL_STEPS} accent={T.accent} />
     <h2 style={{ fontSize:20, fontWeight:600, color:T.textPrimary, marginBottom:6 }}>Add your first tasks</h2>
-    <p style={{ fontSize:13, color:T.textSecondary, marginBottom:18, lineHeight:1.5 }}>Tasks are one-off things to get done. Unlike habits, they don't repeat every day.</p>
-
+    <p style={{ fontSize:13, color:T.textSecondary, marginBottom:18, lineHeight:1.5 }}>Tasks are one-off things to get done. Unlike habits they don't repeat every day.</p>
     {tasks.map((t,i)=>(
       <div key={i} style={{ display:"flex", alignItems:"center", gap:10, background:T.card, border:`0.5px solid ${T.border}`, borderRadius:10, padding:"11px 14px", marginBottom:8 }}>
         <div style={{ width:8, height:8, borderRadius:"50%", background:T.blue, flexShrink:0 }} />
@@ -259,7 +250,6 @@ export default function Onboarding({ theme, onComplete }) {
         <button onClick={()=>setTasks(ts=>ts.filter((_,j)=>j!==i))} style={{ background:"none", border:"none", cursor:"pointer", color:T.textHint, fontSize:14 }}>✕</button>
       </div>
     ))}
-
     <div style={{ background:T.card, border:`0.5px solid ${T.border}`, borderRadius:10, padding:"12px 14px", marginBottom:16 }}>
       <input value={taskName} onChange={e=>setTaskName(e.target.value)} placeholder="Task name..." style={{ width:"100%", background:T.surface, border:`0.5px solid ${T.borderMed}`, borderRadius:8, padding:"9px 11px", fontSize:13, color:T.textPrimary, fontFamily:"inherit", marginBottom:8 }} />
       <select value={taskArea} onChange={e=>setTaskArea(e.target.value)} style={{ width:"100%", background:T.surface, border:`0.5px solid ${T.borderMed}`, borderRadius:8, padding:"8px 10px", fontSize:12, color:T.textPrimary, fontFamily:"inherit", marginBottom:8 }}>
@@ -272,7 +262,6 @@ export default function Onboarding({ theme, onComplete }) {
       </div>
       <button onClick={()=>{ if(taskName.trim()){ setTasks(ts=>[...ts,{name:taskName.trim(),area:taskArea,due:taskDue}]); setTaskName(""); }}} style={{ width:"100%", padding:10, background:T.blue, color:T.blueBg, border:"none", borderRadius:8, fontSize:13, fontWeight:500, cursor:"pointer", fontFamily:"inherit" }}>Add task</button>
     </div>
-
     <button onClick={next} style={{ width:"100%", padding:14, background:T.accent, color:T.accentBg, border:"none", borderRadius:10, fontSize:15, fontWeight:600, cursor:"pointer", fontFamily:"inherit" }}>
       {tasks.length>0?"Finish setup →":"Skip for now →"}
     </button>
