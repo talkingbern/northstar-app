@@ -1,5 +1,5 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-body { font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; }
+body { font-family: 'DM Sans', sans-serif; -webkit-font-smoothing: antialiased; background: #181816; }
 textarea, input, select, button { font-family: inherit; }
 textarea { outline: none; }
 input { outline: none; }

@@ -1,13 +1,14 @@
 import { useState, useEffect } from "react";
 import { getGoals, saveGoals, getVision } from "../store";
+import NorthstarLogo from "../NorthstarLogo";
 
 const AREAS = [
-  { id: "career",        title: "Career & Finance",        icon: "💼", bg: "#EAF3DE" },
-  { id: "relationships", title: "Intimate Relationships",  icon: "❤️", bg: "#FBEAF0" },
-  { id: "health",        title: "Health & Fitness",        icon: "🏃", bg: "#E1F5EE" },
-  { id: "family",        title: "Family & Friends",        icon: "👥", bg: "#E6F1FB" },
-  { id: "hobbies",       title: "Hobbies & Growth",        icon: "🎯", bg: "#FAEEDA" },
-  { id: "lifestyle",     title: "Lifestyle & Environment", icon: "🏡", bg: "#EEEDFE" },
+  { id:"career",        title:"Career & Finance",        icon:"💼", bg:"#1E3A08" },
+  { id:"relationships", title:"Intimate Relationships",  icon:"❤️", bg:"#3A0A1A" },
+  { id:"health",        title:"Health & Fitness",        icon:"🏃", bg:"#0A2A1A" },
+  { id:"family",        title:"Family & Friends",        icon:"👥", bg:"#0A1A3A" },
+  { id:"hobbies",       title:"Hobbies & Growth",        icon:"🎯", bg:"#2A1A05" },
+  { id:"lifestyle",     title:"Lifestyle & Environment", icon:"🏡", bg:"#1A0A2A" },
 ];
 
 const PH = {
@@ -24,44 +25,37 @@ const SMART_TIPS = {
 };
 
 const TIERS = [
-  { id:"1yr",   label:"1 year",   badgeBgKey:"accentBg", badgeColorKey:"accentTxt", btnBgKey:"accent",  btnColorKey:"accentBg" },
-  { id:"6mo",   label:"6 months", badgeBgKey:"blueBg",   badgeColorKey:"blue",      btnBgKey:"blue",    btnColorKey:"blueBg"  },
-  { id:"custom",label:"Custom",   badgeBgKey:"amberBg",  badgeColorKey:"amber",     btnBgKey:"amber",   btnColorKey:"amberBg" },
+  { id:"1yr",   label:"1 year",   badgeBgKey:"accentBg",  badgeColorKey:"accentTxt", btnBgKey:"accent", btnColorKey:"accentBg" },
+  { id:"6mo",   label:"6 months", badgeBgKey:"blueBg",    badgeColorKey:"blue",      btnBgKey:"blue",   btnColorKey:"blueBg"  },
+  { id:"custom",label:"Custom",   badgeBgKey:"amberBg",   badgeColorKey:"amber",     btnBgKey:"amber",  btnColorKey:"amberBg" },
 ];
 const DOT_COLORS = { "1yr":"accent", "6mo":"blue", "custom":"amber" };
 
 export default function GoalsScreen({ theme }) {
-  const [goals, setGoals] = useState({});
-  const [visions, setVisions] = useState({});
+  const [goals, setGoals]       = useState({});
+  const [visions, setVisions]   = useState({});
   const [openArea, setOpenArea] = useState(null);
   const [openForms, setOpenForms] = useState({});
-  const [inputs, setInputs] = useState({});
-  const [customN, setCustomN] = useState({});
-  const [customU, setCustomU] = useState({});
+  const [inputs, setInputs]     = useState({});
+  const [customN, setCustomN]   = useState({});
+  const [customU, setCustomU]   = useState({});
   const [activeTip, setActiveTip] = useState(null);
   const S = theme;
 
-  useEffect(() => {
-    setGoals(getGoals());
-    setVisions(getVision());
-  }, []);
+  useEffect(() => { setGoals(getGoals()); setVisions(getVision()); }, []);
 
   function getAreaGoals(aId, tier) { return (goals[aId] || {})[tier] || []; }
-
-  function persistGoals(next) {
-    setGoals(next);
-    saveGoals(next);
-  }
+  function persistGoals(next) { setGoals(next); saveGoals(next); }
 
   function saveGoal(aId, tier) {
     const key = aId + tier;
     const text = (inputs[key] || "").trim();
-    if (text.length < 5) return;
-    const label = tier === "1yr" ? "1 year" : tier === "6mo" ? "6 months" : `${customN[aId]||"3"} ${customU[aId]||"months"}`;
-    const next = { ...goals, [aId]: { ...(goals[aId]||{}), [tier]: [...getAreaGoals(aId,tier), { text, label }] }};
+    if(text.length < 5) return;
+    const label = tier==="1yr"?"1 year":tier==="6mo"?"6 months":`${customN[aId]||"3"} ${customU[aId]||"months"}`;
+    const next = { ...goals, [aId]: { ...(goals[aId]||{}), [tier]: [...getAreaGoals(aId,tier), {text,label}] }};
     persistGoals(next);
-    setInputs(i => ({ ...i, [key]:"" }));
-    setOpenForms(f => ({ ...f, [key]:false }));
+    setInputs(i => ({...i,[key]:""}));
+    setOpenForms(f => ({...f,[key]:false}));
   }
 
   function delGoal(aId, tier, idx) {
@@ -76,13 +70,16 @@ export default function GoalsScreen({ theme }) {
     <div>
       <div style={{ background:S.card, borderBottom:`0.5px solid ${S.border}`, padding:"14px 20px 12px" }}>
         <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center", marginBottom:4 }}>
-          <span style={{ fontSize:11, fontWeight:500, letterSpacing:"0.12em", color:S.textHint, textTransform:"uppercase" }}>Northstar</span>
+          <div style={{ display:"flex", alignItems:"center", gap:8 }}>
+            <NorthstarLogo size={18} isDark={S.isDark}/>
+            <span style={{ fontSize:11, fontWeight:500, letterSpacing:"0.12em", color:S.textHint, textTransform:"uppercase" }}>Northstar</span>
+          </div>
           <button onClick={S.toggleTheme} style={{ display:"flex", alignItems:"center", gap:6, background:"transparent", border:`1.5px solid ${S.themeBtnBorder}`, borderRadius:20, padding:"5px 12px", fontSize:12, fontWeight:500, color:S.themeBtnText, cursor:"pointer" }}>
             {S.isDark?"☀️ Light":"🌙 Dark"}
           </button>
         </div>
         <h1 style={{ fontSize:22, fontWeight:500, color:S.textPrimary }}>My Goals</h1>
-        <p style={{ fontSize:13, color:S.textSecondary, marginTop:2 }}>Each life area is your 5-year destination</p>
+        <p style={{ fontSize:13, color:S.textSecondary, marginTop:2 }}>Each life area is your 4-year destination</p>
       </div>
 
       <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:10, margin:"14px 16px 0" }}>
@@ -96,15 +93,14 @@ export default function GoalsScreen({ theme }) {
 
       <div style={{ fontSize:11, fontWeight:500, letterSpacing:"0.1em", color:S.textHint, textTransform:"uppercase", padding:"18px 20px 8px" }}>Goals by life area</div>
 
-      {AREAS.map(area=>{
-        const isOpen = openArea===area.id;
-        const aGoals = goals[area.id]||{};
+      {AREAS.map(area => {
+        const isOpen = openArea === area.id;
+        const aGoals = goals[area.id] || {};
         const totalInArea = Object.values(aGoals).reduce((s,a)=>s+a.length,0);
         const visionText = visions[area.id];
-
         return (
           <div key={area.id} style={{ background:S.card, border:`0.5px solid ${isOpen?S.borderMed:S.border}`, borderRadius:12, margin:"0 16px 10px", overflow:"hidden" }}>
-            <div onClick={()=>setOpenArea(isOpen?null:area.id)} style={{ display:"flex", alignItems:"center", gap:11, padding:"13px 14px", cursor:"pointer", userSelect:"none" }}>
+            <div onClick={() => setOpenArea(isOpen?null:area.id)} style={{ display:"flex", alignItems:"center", gap:11, padding:"13px 14px", cursor:"pointer", userSelect:"none" }}>
               <div style={{ width:34, height:34, borderRadius:8, background:area.bg, display:"flex", alignItems:"center", justifyContent:"center", fontSize:17 }}>{area.icon}</div>
               <div style={{ flex:1, minWidth:0 }}>
                 <div style={{ fontSize:14, fontWeight:500, color:S.textPrimary }}>{area.title}</div>
@@ -112,7 +108,7 @@ export default function GoalsScreen({ theme }) {
                   {totalInArea===0
                     ? <span style={{ fontSize:10, color:S.textHint }}>No goals yet</span>
                     : TIERS.map(t=>getAreaGoals(area.id,t.id).map((_,i)=>(
-                        <div key={t.id+i} style={{ width:7, height:7, borderRadius:"50%", background:S[DOT_COLORS[t.id]] }} />
+                        <div key={t.id+i} style={{ width:7, height:7, borderRadius:"50%", background:S[DOT_COLORS[t.id]] }}/>
                       )))
                   }
                   {totalInArea>0 && <span style={{ fontSize:10, color:S.textHint, marginLeft:2 }}>{totalInArea} goal{totalInArea!==1?"s":""}</span>}
@@ -123,44 +119,42 @@ export default function GoalsScreen({ theme }) {
 
             {isOpen && (
               <div style={{ borderTop:`0.5px solid ${S.border}` }}>
-                {/* Vision strip */}
                 <div style={{ margin:"12px 14px 0", padding:"9px 11px", background:S.surface, borderLeft:`2px solid ${S.accent}`, borderRadius:"0 6px 6px 0" }}>
-                  <div style={{ fontSize:10, fontWeight:500, textTransform:"uppercase", letterSpacing:"0.09em", color:S.accent, marginBottom:2 }}>5-year vision</div>
+                  <div style={{ fontSize:10, fontWeight:500, textTransform:"uppercase", letterSpacing:"0.09em", color:S.accent, marginBottom:2 }}>4-year vision</div>
                   <p style={{ fontSize:12, color:S.textSecondary, fontStyle:"italic", lineHeight:1.5 }}>
                     {visionText || "Complete your vision on the Vision screen to see it here."}
                   </p>
                 </div>
 
-                {/* Ladder */}
                 <div style={{ padding:"12px 14px 14px" }}>
-                  {TIERS.map((tier,ti)=>{
-                    const formKey = area.id+tier.id;
+                  {TIERS.map((tier,ti) => {
+                    const formKey = area.id + tier.id;
                     const isFormOpen = openForms[formKey];
-                    const tierGoals = getAreaGoals(area.id,tier.id);
+                    const tierGoals = getAreaGoals(area.id, tier.id);
                     return (
                       <div key={tier.id}>
-                        {ti>0 && <div style={{ display:"flex", justifyContent:"center", margin:"-2px 0" }}><div style={{ width:1, height:14, background:S.borderMed }} /></div>}
+                        {ti>0 && <div style={{ display:"flex", justifyContent:"center", margin:"-2px 0" }}><div style={{ width:1, height:14, background:S.borderMed }}/></div>}
                         <div style={{ marginBottom:8 }}>
                           <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:7 }}>
                             <span style={{ padding:"3px 9px", borderRadius:20, fontSize:11, fontWeight:500, background:S[tier.badgeBgKey], color:S[tier.badgeColorKey], whiteSpace:"nowrap" }}>{tier.label}</span>
-                            <div style={{ flex:1, height:0.5, background:S.borderMed }} />
+                            <div style={{ flex:1, height:0.5, background:S.borderMed }}/>
                           </div>
-                          {tierGoals.map((g,i)=>(
+                          {tierGoals.map((g,i) => (
                             <div key={i} style={{ background:S.surface, borderRadius:8, padding:"9px 11px", marginBottom:6, display:"flex", gap:9, alignItems:"flex-start" }}>
-                              <div style={{ width:7, height:7, borderRadius:"50%", background:S[DOT_COLORS[tier.id]], flexShrink:0, marginTop:4 }} />
+                              <div style={{ width:7, height:7, borderRadius:"50%", background:S[DOT_COLORS[tier.id]], flexShrink:0, marginTop:4 }}/>
                               <div style={{ flex:1, fontSize:13, color:S.textPrimary, lineHeight:1.45 }}>{g.text}</div>
-                              <button onClick={()=>delGoal(area.id,tier.id,i)} style={{ background:"none", border:"none", cursor:"pointer", color:S.textHint, fontSize:13, flexShrink:0 }}>✕</button>
+                              <button onClick={() => delGoal(area.id,tier.id,i)} style={{ background:"none", border:"none", cursor:"pointer", color:S.textHint, fontSize:13, flexShrink:0 }}>✕</button>
                             </div>
                           ))}
                           {!isFormOpen ? (
-                            <button onClick={()=>setOpenForms(f=>({...f,[formKey]:true}))} style={{ width:"100%", padding:8, background:"none", border:`0.5px dashed ${S.borderMed}`, borderRadius:8, fontSize:12, color:S.textHint, cursor:"pointer", fontFamily:"inherit" }}>
+                            <button onClick={() => setOpenForms(f=>({...f,[formKey]:true}))} style={{ width:"100%", padding:8, background:"none", border:`0.5px dashed ${S.borderMed}`, borderRadius:8, fontSize:12, color:S.textHint, cursor:"pointer", fontFamily:"inherit" }}>
                               + Add {tier.label} goal
                             </button>
-                          ):(
+                          ) : (
                             <div style={{ background:S.surface, borderRadius:8, padding:11 }}>
                               <div style={{ display:"flex", flexWrap:"wrap", gap:4, marginBottom:9 }}>
-                                {Object.keys(SMART_TIPS).map(w=>(
-                                  <span key={w} onClick={()=>setActiveTip(activeTip===formKey+w?null:formKey+w)} style={{ fontSize:11, padding:"3px 9px", borderRadius:20, background:S.card, border:`0.5px solid ${S.borderMed}`, color:S.textSecondary, cursor:"pointer", userSelect:"none" }}>{w}</span>
+                                {Object.keys(SMART_TIPS).map(w => (
+                                  <span key={w} onClick={() => setActiveTip(activeTip===formKey+w?null:formKey+w)} style={{ fontSize:11, padding:"3px 9px", borderRadius:20, background:S.card, border:`0.5px solid ${S.borderMed}`, color:S.textSecondary, cursor:"pointer", userSelect:"none" }}>{w}</span>
                                 ))}
                               </div>
                               {activeTip?.startsWith(formKey) && (
@@ -171,7 +165,7 @@ export default function GoalsScreen({ theme }) {
                               {tier.id==="custom" && (
                                 <div style={{ display:"flex", alignItems:"center", gap:8, marginBottom:8 }}>
                                   <span style={{ fontSize:12, color:S.textSecondary }}>Time until goal:</span>
-                                  <input type="number" min={1} max={120} defaultValue={3} onChange={e=>setCustomN(n=>({...n,[area.id]:e.target.value}))} style={{ width:52, background:S.card, border:`0.5px solid ${S.borderMed}`, borderRadius:6, padding:"5px 8px", fontSize:13, color:S.textPrimary, fontFamily:"inherit", textAlign:"center" }} />
+                                  <input type="number" min={1} max={120} defaultValue={3} onChange={e=>setCustomN(n=>({...n,[area.id]:e.target.value}))} style={{ width:52, background:S.card, border:`0.5px solid ${S.borderMed}`, borderRadius:6, padding:"5px 8px", fontSize:13, color:S.textPrimary, fontFamily:"inherit", textAlign:"center" }}/>
                                   <select onChange={e=>setCustomU(u=>({...u,[area.id]:e.target.value}))} style={{ background:S.card, border:`0.5px solid ${S.borderMed}`, borderRadius:6, padding:"5px 8px", fontSize:12, color:S.textPrimary, fontFamily:"inherit" }}>
                                     <option>weeks</option><option defaultValue>months</option><option>years</option>
                                   </select>
@@ -184,8 +178,8 @@ export default function GoalsScreen({ theme }) {
                                 style={{ width:"100%", background:S.card, border:`0.5px solid ${S.borderMed}`, borderRadius:8, padding:"9px 10px", fontSize:13, fontFamily:"inherit", color:S.textPrimary, minHeight:58, resize:"vertical", lineHeight:1.5 }}
                               />
                               <div style={{ display:"flex", gap:7, marginTop:10 }}>
-                                <button onClick={()=>setOpenForms(f=>({...f,[formKey]:false}))} style={{ padding:"9px 13px", background:"none", border:`0.5px solid ${S.borderMed}`, borderRadius:8, fontSize:13, color:S.textSecondary, cursor:"pointer", fontFamily:"inherit" }}>Cancel</button>
-                                <button onClick={()=>saveGoal(area.id,tier.id)} style={{ flex:1, padding:9, background:S[tier.btnBgKey], color:S[tier.btnColorKey], border:"none", borderRadius:8, fontSize:13, fontWeight:500, cursor:"pointer", fontFamily:"inherit" }}>Save goal</button>
+                                <button onClick={() => setOpenForms(f=>({...f,[formKey]:false}))} style={{ padding:"9px 13px", background:"none", border:`0.5px solid ${S.borderMed}`, borderRadius:8, fontSize:13, color:S.textSecondary, cursor:"pointer", fontFamily:"inherit" }}>Cancel</button>
+                                <button onClick={() => saveGoal(area.id,tier.id)} style={{ flex:1, padding:9, background:S[tier.btnBgKey], color:S[tier.btnColorKey], border:"none", borderRadius:8, fontSize:13, fontWeight:500, cursor:"pointer", fontFamily:"inherit" }}>Save goal</button>
                               </div>
                             </div>
                           )}
@@ -199,7 +193,7 @@ export default function GoalsScreen({ theme }) {
           </div>
         );
       })}
-      <div style={{ height:16 }} />
+      <div style={{ height:16 }}/>
     </div>
   );
 }
